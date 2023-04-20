@@ -31,6 +31,41 @@ def create_receipt(request):
 
 
 @login_required
+def create_account(request):
+    if request.method == "POST":
+        form = AccountForm(request.POST)
+        if form.is_valid():
+            account = form.save(False)
+            account.owner = request.user
+            account.save()
+            return redirect("account_list")
+    else:
+        form = AccountForm()
+        context = {
+            "form": form,
+        }
+    return render(request, "accounts/create.html", context)
+
+
+@login_required
+def category_list(request):
+    categories = ExpenseCategory.objects.filter(owner=request.user)
+    context = {
+        "categories": categories,
+    }
+    return render(request, "receipts/categories.html", context)
+
+
+@login_required
+def account_list(request):
+    accounts = Account.objects.filter(owner=request.user)
+    context = {
+        "accounts": accounts,
+    }
+    return render(request, "receipts/accounts.html", context)
+
+
+@login_required
 def create_category(request):
     if request.method == "POST":
         form = CategoryForm(request.POST)
@@ -45,38 +80,3 @@ def create_category(request):
         "form": form,
     }
     return render(request, "categories/create.html", context)
-
-
-@login_required
-def create_account(request):
-    if request.method == "POST":
-        form = AccountForm(request.POST)
-        if form.is_valid():
-            account = form.save(False)
-            account.owner = request.user
-            account.save()
-            return redirect("account_list")
-    else:
-        form = CategoryForm()
-    context = {
-        "form": form,
-    }
-    return render(request, "accounts/create.html", context)
-
-
-@login_required
-def category_list(request):
-    categories = ExpenseCategory.objects.filter(owner=request.user)
-    context = {
-        "categories": categories,
-    }
-    return render(request, "categories/list.html", context)
-
-
-@login_required
-def account_list(request):
-    accounts = Account.objects.filter(owner=request.user)
-    context = {
-        "accounts": accounts,
-    }
-    return render(request, "accounts/list.html", context)
